@@ -14,7 +14,17 @@
 # 2. high/low in a one-month window
 
 #download
-#http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=0&e=28&f=2010&g=d&a=3&b=12&c=1996&ignore=.csv
+#http://ichart.finance.yahoo.com/table.csv
+#?s=YHOO
+#&d=0
+#&e=28
+#&f=2010
+#&g=d
+#&a=3
+#&b=12
+#&c=1996
+#&ignore=.csv
+
 #sn = TICKER
 # a = fromMonth-1
 # b = fromDay (two digits)
@@ -75,13 +85,35 @@ class BuyLow(object):
 		# plt.show()
 
 	def Test (self):
-		urllib.urlretrieve ("http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=0&e=28&f=2010&g=d&a=3&b=12&c=1996&ignore=.csv", "blah.csv")
-		df = pd.read_csv("blah.csv", index_col='Date', parse_dates=True)
+		l_symbol = "GOOGL"
+		l_y = time.strftime("%Y")
+		l_m = time.strftime("%m")
+		l_d = time.strftime("%d")
+		df = self.GetData(l_symbol, l_y, l_m, l_d)
 		print df.head()
+		print df.tail()
+
+	def GetData (self, symbol, y, m, d):
+		l_symbol = symbol
+		urllib.urlretrieve ("http://ichart.finance.yahoo.com/table.csv?"
+			+ "s=" + l_symbol
+			#to
+			+ "&d=" + str(int(m) - 1)
+			+ "&e=" + str(int(d))
+			+ "&f=" + str(int(y))
+			+ "&g=d"
+			#from (i.e., an year back)
+			+ "&a=" + str(int(m) - 1)
+			+ "&b=" + str(int(d))
+			+ "&c=" + str(int(y) - 1)
+			+ "&ignore=.csv", 
+			l_symbol + ".csv")
+		df = pd.read_csv(l_symbol + ".csv", index_col='Date', parse_dates=True) 
 		try:
-			os.remove("blah.csv")
+			os.remove(l_symbol + ".csv")
 		except OSError:
 			pass
+		return df
 
 	# returns score of current state
 	# the higher score, the better chance to buy!
